@@ -7,7 +7,116 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model HealthCheck {
-  id        Int      @id @default(autoincrement())
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Game {
+  id                String   @id @default(uuid())
+  userId            String?
+  status            String   @default("active")
+  currentLocationId String?
+  questState        Json     @default("{}")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  players   Player[]
+  locations Location[]
+  npcs      Npc[]
+  items     InventoryItem[]
+  turns     Turn[]
+
+  @@map("games")
+}
+
+model Player {
+  id     String @id @default(uuid())
+  gameId String
+
+  hp    Int @default(100)
+  maxHp Int @default(100)
+  level Int @default(1)
+  xp    Int @default(0)
+
+  stats Json @default("{\"strength\":10,\"agility\":10,\"charisma\":10,\"intelligence\":10}")
+
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@map("players")
+}
+
+model InventoryItem {
+  id     String @id @default(uuid())
+  gameId String
+
+  itemType String
+  name     String
+
+  quantity   Int  @default(1)
+  properties Json @default("{}")
+
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@map("inventory_items")
+}
+
+model Location {
+  id     String @id @default(uuid())
+  gameId String
+
+  name        String
+  description String
+
+  exits     Json
+  lootTable Json @default("[]")
+
+  visited Boolean @default(false)
+
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@map("locations")
+}
+
+model Npc {
+  id     String @id @default(uuid())
+  gameId String
+
+  name        String
+  archetype   String
+  disposition String
+
+  hp    Int @default(100)
+  maxHp Int @default(100)
+
+  locationId String?
+
+  stats           Json @default("{}")
+  dialogueHistory Json @default("[]")
+
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@map("npcs")
+}
+
+model Turn {
+  id     String @id @default(uuid())
+  gameId String
+
+  turnNumber Int
+
+  playerInput String
+  actionType  String
+
+  toolCalls Json @default("[]")
+
+  narrative String
+
   createdAt DateTime @default(now())
+
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@map("turns")
 }

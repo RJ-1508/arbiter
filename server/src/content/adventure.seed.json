@@ -1,0 +1,51 @@
+{
+  "title": "The Sunken Vault",
+  "winCondition": { "type": "reach_location", "locationKey": "vault" },
+  "startLocationKey": "entrance",
+  "player": {
+    "maxHp": 30,
+    "stats": { "strength": 2, "agility": 3, "charisma": 1, "intelligence": 2 }
+  },
+  "locations": [
+    {
+      "key": "entrance",
+      "name": "Collapsed Entrance",
+      "description": "A cracked stone archway half-buried in roots.",
+      "exits": { "north": "hall" },
+      "lootTable": [{ "itemKey": "torch" }]
+    },
+    {
+      "key": "hall",
+      "name": "Flooded Hall",
+      "description": "Ankle-deep water; something moves beneath it.",
+      "exits": { "south": "entrance", "east": "vault" },
+      "lootTable": []
+    },
+    {
+      "key": "vault",
+      "name": "The Sunken Vault",
+      "description": "A sealed door, and behind it the artifact.",
+      "exits": { "west": "hall" },
+      "lootTable": []
+    }
+  ],
+  "npcs": [
+    {
+      "key": "guard",
+      "name": "Drowned Sentinel",
+      "archetype": "enemy",
+      "maxHp": 12,
+      "disposition": "hostile",
+      "locationKey": "hall",
+      "stats": { "strength": 3, "agility": 1, "charisma": 0, "intelligence": 0 }
+    }
+  ],
+  "items": [
+    {
+      "key": "torch",
+      "itemType": "utility",
+      "name": "Torch",
+      "properties": {}
+    }
+  ]
+}

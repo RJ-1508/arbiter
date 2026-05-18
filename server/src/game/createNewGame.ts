@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../db.js";
 import seedData from "../content/adventure.seed.json" with { type: "json" };
-
-const prisma = new PrismaClient();
 
 export async function createNewGame(): Promise<string> {
   try {

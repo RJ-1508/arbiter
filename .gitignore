@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+*.env.local
+
+# Claude Code
+CLAUDE.md
+SKILLS.md
+
+/generated/prisma

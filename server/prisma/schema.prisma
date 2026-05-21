@@ -18,16 +18,17 @@ model Game {
   id                String   @id @default(uuid())
   userId            String?
   status            String   @default("active")
-  currentLocationId String?
+  currentLocationId String?  @unique
   questState        Json     @default("{}")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  players   Player[]
-  locations Location[]
-  npcs      Npc[]
-  items     InventoryItem[]
-  turns     Turn[]
+  currentLocation Location?       @relation("GameCurrentLocation", fields: [currentLocationId], references: [id])
+  player          Player?
+  locations       Location[]      @relation("GameLocations")
+  npcs            Npc[]
+  items           InventoryItem[]
+  turns           Turn[]
 
   @@map("games")
 }
@@ -45,6 +46,7 @@ model Player {
 
   game Game @relation(fields: [gameId], references: [id])
 
+  @@unique([gameId])
   @@map("players")
 }
 
@@ -69,13 +71,12 @@ model Location {
 
   name        String
   description String
+  exits       Json
+  lootTable   Json    @default("[]")
+  visited     Boolean @default(false)
 
-  exits     Json
-  lootTable Json @default("[]")
-
-  visited Boolean @default(false)
-
-  game Game @relation(fields: [gameId], references: [id])
+  game           Game  @relation("GameLocations", fields: [gameId], references: [id])
+  currentForGame Game? @relation("GameCurrentLocation")
 
   @@map("locations")
 }

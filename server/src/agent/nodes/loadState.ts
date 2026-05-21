@@ -7,7 +7,7 @@ export async function loadState(state: typeof GraphState.State) {
       id: state.gameId,
     },
     include: {
-      players: true,
+      player: true,
       locations: true,
       npcs: true,
       items: true,

@@ -1,12 +1,18 @@
 export const RULES = {
   combat: {
-    // hitDC, attackStat, damageDie, damageStatModifier, critThreshold, critMultiplier
+    hitDC: 12,
+    attackStat: "strength",
+    damageDie: 6,
+    damageStat: "strength",
+    critThreshold: 20,
+    critMultiplier: 2,
   },
   skill_check: {
-    // dcs: { easy, medium, hard } — LLM picks which stat applies per check
+    dcs: { easy: 10, medium: 15, hard: 20 },
   },
   dialogue: {
-    // dcs: { easy, medium, hard }, stat: "charisma"
+    ladder: ["hostile", "wary", "neutral", "friendly", "allied"] as const,
+    baseDC: 13,
   },
   movement: {
     // "must be a real exit" — validated against DB in move_player, not here

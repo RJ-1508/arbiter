@@ -6,7 +6,7 @@ import { rollDice } from "../tools/rollDice.js";
 export async function skillHandler(state: typeof GraphState.State) {
   const { loadedState, actionParams } = state;
 
-  const statName = actionParams.intent as string;
+  const statName = actionParams.stat as string;
   const difficulty = (actionParams.difficulty as keyof typeof RULES.skill_check.dcs) ?? "medium";
   const stats = loadedState.player.stats as Record<string, number>;
   const modifier = stats[statName] ?? 0;
@@ -19,7 +19,11 @@ export async function skillHandler(state: typeof GraphState.State) {
 
   const proposedStateChanges: Record<string, unknown> = {};
   if (result.success) {
-    const unlocks = actionParams.unlocks as { flag?: string; newLocationId?: string } | undefined;
+    // DESIGN-PENDING: `unlocks` is not part of the classifier contract — it must
+    // come from content/seed, not the LLM. Read loosely until that's decided.
+    const unlocks = (actionParams as Record<string, unknown>).unlocks as
+      | { flag?: string; newLocationId?: string }
+      | undefined;
     if (unlocks?.flag) {
       proposedStateChanges.flag = unlocks.flag;
     } else if (unlocks?.newLocationId) {

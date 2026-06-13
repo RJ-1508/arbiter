@@ -12,11 +12,12 @@ export async function loadState(state: typeof GraphState.State) {
       npcs: true,
       items: true,
       turns: true,
+      currentLocation: true,
     },
   });
   if (!game) {
     throw new Error(`loadState: no game with id ${state.gameId}`);
   }
 
-  return { loadedState: game };
+  return { loadedState: { ...game, inventory: game.items } };
 }

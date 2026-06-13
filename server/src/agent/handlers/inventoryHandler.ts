@@ -5,7 +5,7 @@ import { canAddItem } from "../../engine/boundHelpers.js";
 export async function inventoryHandler(state: typeof GraphState.State) {
   const { loadedState, actionParams } = state;
 
-  const intent = actionParams.intent as "pick_up" | "drop" | "use";
+  const intent = actionParams.inventoryIntent as "pick_up" | "drop" | "use";
   const inventory = loadedState.inventory as any[];
 
   if (intent === "pick_up") {
@@ -15,7 +15,12 @@ export async function inventoryHandler(state: typeof GraphState.State) {
         proposedStateChanges: {},
       };
     }
-    const item = actionParams.item as Record<string, unknown>;
+    // DESIGN-PENDING: classifier emits `item` as a name string; persist needs
+    // { name, itemType }. Resolve from content/lootTable once decided (1e/2c).
+    const item = (actionParams as Record<string, unknown>).item as Record<
+      string,
+      unknown
+    >;
     return {
       toolResults: [{ ok: true, intent, item }],
       proposedStateChanges: { addItem: item },
@@ -23,7 +28,9 @@ export async function inventoryHandler(state: typeof GraphState.State) {
   }
 
   if (intent === "drop" || intent === "use") {
-    const itemId = actionParams.itemId as string;
+    // DESIGN-PENDING: `itemId` isn't emitted by the classifier — resolve the
+    // item by name against loadedState.inventory once decided (1c/1e).
+    const itemId = (actionParams as Record<string, unknown>).itemId as string;
     return {
       toolResults: [{ ok: true, intent, itemId }],
       proposedStateChanges: { removeItemId: itemId },

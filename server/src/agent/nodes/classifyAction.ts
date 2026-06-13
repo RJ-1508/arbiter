@@ -14,6 +14,26 @@ const classificationSchema = z.object({
   exit: z.string().nullable().describe("Exit name or direction, for movement"),
   item: z.string().nullable().describe("Item name, for inventory actions"),
   intent: z.string().nullable().describe("One-sentence paraphrase of what the player wants"),
+  stat: z
+    .enum(["strength", "agility", "charisma", "intelligence"])
+    .nullable()
+    .describe("Which stat a skill_check tests"),
+  difficulty: z
+    .enum(["easy", "medium", "hard"])
+    .nullable()
+    .describe("Rough difficulty of a skill_check"),
+  socialIntent: z
+    .enum(["persuade", "intimidate", "ask", "chat"])
+    .nullable()
+    .describe("For dialogue: how the player engages the NPC"),
+  inventoryIntent: z
+    .enum(["pick_up", "drop", "use"])
+    .nullable()
+    .describe("For inventory: what the player does with the item"),
+  focus: z
+    .enum(["stats", "surroundings", "inventory"])
+    .nullable()
+    .describe("For meta: what the player is asking about"),
 });
 
 const classifier = model.withStructuredOutput(classificationSchema);
@@ -42,6 +62,11 @@ export async function classifyAction(state: typeof GraphState.State) {
       exit: result.exit,
       item: result.item,
       intent: result.intent,
+      stat: result.stat,
+      difficulty: result.difficulty,
+      socialIntent: result.socialIntent,
+      inventoryIntent: result.inventoryIntent,
+      focus: result.focus,
     },
   };
 }

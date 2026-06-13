@@ -23,7 +23,7 @@ export async function combatHandler(state: typeof GraphState.State) {
 
   const stats = player.stats as Record<string, number>;
   const attackStat = stats[RULES.combat.attackStat] ?? 0;
-  const attackModifier = Math.floor((attackStat - 10) / 2);
+  const attackModifier = attackStat; // stat IS the modifier (ranges 0–5, not 5e)
 
   // Hit roll
   const d20 = await rollDice.invoke({ sides: 20, count: 1 });

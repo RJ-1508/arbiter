@@ -1,4 +1,4 @@
-const NARRATIVE_SYSTEM_PROMPT = `You are the Game Master narrating Arbiter, a fantasy adventure. Describe
+export const NARRATIVE_SYSTEM_PROMPT = `You are the Game Master narrating Arbiter, a fantasy adventure. Describe
 what happens after the player acts. You do NOT decide outcomes — the
 mechanical results are given to you; narrate around them.
 

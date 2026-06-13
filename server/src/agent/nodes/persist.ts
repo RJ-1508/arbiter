@@ -1,5 +1,5 @@
-import { GraphState } from "../state";
-import { prisma } from "../../db";
+import { GraphState } from "../state.js";
+import { prisma } from "../../db.js";
 import { Prisma } from "@prisma/client";
 
 // This interface IS the contract — mirror it against what your six handlers
@@ -8,7 +8,7 @@ interface ProposedStateChanges {
   npcId?: string;
   npcHp?: number;
   newDisposition?: string;
-  dialogueAppend?: string; // decision-dependent — see note below
+  dialogueAppend?: { speaker: string; text: string }; // decision-dependent — see note below
   newLocationId?: string;
   playerHp?: number; // NOT in your handover doc's key list — confirm a handler emits it
   addItem?: { name: string; itemType: string; quantity?: number };
@@ -89,9 +89,9 @@ export async function persist(
         gameId,
         turnNumber,
         playerInput: state.playerInput,
-        actionType: state.actionType,
+        actionType: state.actionType!, // always set by classifyAction
         toolCalls: state.toolResults as any,
-        narrative: state.narrative,
+        narrative: state.narrative!, // always set by generateNarrative
       },
     });
   });

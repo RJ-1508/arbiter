@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { socket } from "./lib/socket";
 import { useGameStore } from "./store/gameStore";
@@ -14,17 +14,71 @@ const HUE: Record<string, number> = {
   "the sunken vault": 150,
 };
 
+const MAX_TURNS_PER_PAGE = 4;
+
 export default function App() {
   const setGameId = useGameStore((s) => s.setGameId);
-  const player = useGameStore((s) => s.player);
-  const [open, setOpen] = useState(true);
   useGameSocket();
 
   const currentLocation = useGameStore((s) => s.currentLocation);
+  const pageTurns = useGameStore((s) => s.pageTurns);
+  const clearPageTurns = useGameStore((s) => s.clearPageTurns);
+  const keepLastPageTurn = useGameStore((s) => s.keepLastPageTurn);
+
+  const papyrusRef = useRef<HTMLDivElement>(null);
+  const prevLocationRef = useRef<string | null | undefined>(undefined);
+  const [titleRevealed, setTitleRevealed] = useState(false);
+  const isPageTurning = useRef(false);
+  const prevPageTurnsLengthRef = useRef(0);
+
+  function triggerPageTurn(onMidpoint: () => void, onComplete?: () => void) {
+    if (isPageTurning.current) return;
+    isPageTurning.current = true;
+    papyrusRef.current?.classList.add("turning");
+    setTimeout(() => {
+      onMidpoint();
+      papyrusRef.current?.classList.remove("turning");
+      isPageTurning.current = false;
+      onComplete?.();
+    }, 700);
+  }
+
+  // Location hue update + location-change page turn
   useEffect(() => {
-    const hue = HUE[currentLocation?.name?.toLowerCase() ?? ""] ?? 40;
+    const name = currentLocation?.name ?? null;
+    const hue = HUE[name?.toLowerCase() ?? ""] ?? 40;
     document.documentElement.style.setProperty("--accent-hue", String(hue));
+
+    if (prevLocationRef.current === undefined) {
+      // First location load: reveal the title without a page turn
+      prevLocationRef.current = name;
+      requestAnimationFrame(() => requestAnimationFrame(() => setTitleRevealed(true)));
+      return;
+    }
+
+    if (name !== prevLocationRef.current) {
+      setTitleRevealed(false);
+      triggerPageTurn(
+        () => { clearPageTurns(); },
+        () => { requestAnimationFrame(() => requestAnimationFrame(() => setTitleRevealed(true))); }
+      );
+    }
+
+    prevLocationRef.current = name;
   }, [currentLocation]);
+
+  // Overflow page turn: when the visible page exceeds MAX_TURNS_PER_PAGE
+  useEffect(() => {
+    const len = pageTurns.length;
+    if (
+      len > prevPageTurnsLengthRef.current &&
+      len > MAX_TURNS_PER_PAGE &&
+      !isPageTurning.current
+    ) {
+      triggerPageTurn(() => keepLastPageTurn());
+    }
+    prevPageTurnsLengthRef.current = len;
+  }, [pageTurns.length]);
 
   useEffect(() => {
     socket.connect();
@@ -45,32 +99,25 @@ export default function App() {
   }, []);
 
   return (
-    <div className={`app-layout${open ? "" : " sheet-collapsed"}`}>
-      <aside className={open ? "sheet" : "sheet collapsed"}>
-        <button onClick={() => setOpen(!open)}>{open ? "›" : "‹"}</button>
-        <div className="detail">
-          <InventoryPanel />
-          <StatsSidebar />
-        </div>
-        <div className="vitals-only">
-          Lv {player?.level}
-          <div className="hpbar">
-            <span
-              style={{
-                width: `${player ? (player.hp / player.maxHp) * 100 : 0}%`,
-              }}
-            />
+    <>
+      <div className="candle-warm" aria-hidden="true" />
+      <div className="candle-cool" aria-hidden="true" />
+      <div className="fog-layer" aria-hidden="true" />
+      <div className="app-layout">
+        <div className="reading-area">
+          <h1 className={`location-title${titleRevealed ? " revealed" : ""}`}>
+            {currentLocation?.name ?? " "}
+          </h1>
+          <div ref={papyrusRef} className="papyrus">
+            <NarrativePanel />
+            <PlayerInput />
           </div>
         </div>
-      </aside>
-      <main className="main">
-        <div className="narrative-wrap">
-          <NarrativePanel />
-        </div>
-        <div className="input-wrap">
-          <PlayerInput />
-        </div>
-      </main>
-    </div>
+        <aside className="sidebar">
+          <InventoryPanel />
+          <StatsSidebar />
+        </aside>
+      </div>
+    </>
   );
 }

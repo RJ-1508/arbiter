@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useGameStore } from "../store/gameStore";
 import { socket } from "../lib/socket";
+
 export default function PlayerInput() {
   const [text, setText] = useState("");
-
   const gameId = useGameStore((s) => s.gameId);
   const startTurn = useGameStore((s) => s.startTurn);
 
@@ -13,9 +13,11 @@ export default function PlayerInput() {
     socket.emit("player:input", { gameId, input: text });
     setText("");
   };
+
   return (
-    <div className="prompt">
+    <div className="command-input-wrapper">
       <input
+        className="command-input"
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}

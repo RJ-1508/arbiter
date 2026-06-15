@@ -5,14 +5,17 @@ import cors from "cors";
 import { app as graph } from "./agent/graph.js";
 import { createNewGame } from "./game/createNewGame.js";
 import { prisma } from "./db.js";
-const CLIENT_ORIGIN = "http://localhost:5173";
+const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://localhost:5173";
 
 const app = express();
-app.use(cors({ origin: CLIENT_ORIGIN }));
+app.use(cors({ origin: FRONTEND_URL }));
+
 app.use(express.json());
 
 const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: CLIENT_ORIGIN } });
+const io = new Server(httpServer, {
+  cors: { origin: FRONTEND_URL },
+});
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
 app.post("/api/games", async (_req, res) => {
@@ -56,7 +59,9 @@ io.on("connection", (socket) => {
         socket.emit("turn:state", {
           player,
           items,
-          location: game?.currentLocation ? { name: game.currentLocation.name } : undefined,
+          location: game?.currentLocation
+            ? { name: game.currentLocation.name }
+            : undefined,
         });
 
         socket.emit("turn:done");

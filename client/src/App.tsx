@@ -35,7 +35,9 @@ export default function App() {
 
   useEffect(() => {
     async function initGame() {
-      const res = await fetch("/api/games", { method: "POST" });
+      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/games`, {
+        method: "POST",
+      });
       const data = await res.json();
       setGameId(data.gameId);
     }
@@ -52,7 +54,13 @@ export default function App() {
         </div>
         <div className="vitals-only">
           Lv {player?.level}
-          <div className="hpbar"><span style={{ width: `${player ? player.hp / player.maxHp * 100 : 0}%` }} /></div>
+          <div className="hpbar">
+            <span
+              style={{
+                width: `${player ? (player.hp / player.maxHp) * 100 : 0}%`,
+              }}
+            />
+          </div>
         </div>
       </aside>
       <main className="main">

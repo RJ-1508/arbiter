@@ -6,10 +6,12 @@ interface GameState {
   items: InventoryItem[];
   narrative: string;
   isStreaming: boolean;
+  lastCommand: string;
+  currentLocation: { name: string } | null;
   setGameId: (id: string) => void;
-  setTurnState: (state: { player: Player; items: InventoryItem[] }) => void;
+  setTurnState: (s: { player: Player; items: InventoryItem[]; location?: { name: string } }) => void;
   appendToken: (token: string) => void;
-  startTurn: () => void;
+  startTurn: (cmd: string) => void;
   endTurn: () => void;
 }
 
@@ -19,11 +21,13 @@ export const useGameStore = create<GameState>((set) => ({
   items: [],
   narrative: "",
   isStreaming: false,
+  lastCommand: "",
+  currentLocation: null,
 
   setGameId: (id) => set({ gameId: id }),
-  setTurnState: ({ player, items }) => set({ player, items }),
+  setTurnState: (s) => set({ player: s.player, items: s.items, currentLocation: s.location ?? null }),
   appendToken: (token) =>
     set((state) => ({ narrative: state.narrative + token })),
-  startTurn: () => set({ narrative: "", isStreaming: true }),
+  startTurn: (cmd) => set({ narrative: "", isStreaming: true, lastCommand: cmd }),
   endTurn: () => set({ isStreaming: false }),
 }));

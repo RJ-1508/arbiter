@@ -27,10 +27,11 @@ function buildNarrativePrompt(state: typeof GraphState.State): string {
   const loc = loadedState.currentLocation;
   lines.push(`Location: ${loc.name} — ${loc.description}`);
 
-  lines.push(`Mechanical outcome: ${summarizeOutcome(toolResults)}`);
+  const results = toolResults as any[];
+  lines.push(`Mechanical outcome: ${summarizeOutcome(results)}`);
 
   if (actionType === "dialogue") {
-    const r = toolResults[0] as any;
+    const r = results[0] as any;
     const npc = loadedState.npcs.find((n: any) => n.id === r.npcId);
     if (npc) {
       lines.push(`NPC: ${npc.name}, currently feeling "${npc.disposition}".`);

@@ -49,7 +49,15 @@ io.on("connection", (socket) => {
         const items = await prisma.inventoryItem.findMany({
           where: { gameId },
         });
-        socket.emit("turn:state", { player, items });
+        const game = await prisma.game.findUnique({
+          where: { id: gameId },
+          include: { currentLocation: true },
+        });
+        socket.emit("turn:state", {
+          player,
+          items,
+          location: game?.currentLocation ? { name: game.currentLocation.name } : undefined,
+        });
 
         socket.emit("turn:done");
       } catch (err) {
@@ -62,7 +70,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => console.log("client disconnected:", socket.id));
 });
 
-const PORT = process.env.PORT ?? 3001;
+const PORT = process.env.PORT ?? 3000;
 httpServer.listen(PORT, () => {
   console.log(`Arbiter server on http://localhost:${PORT}`);
 });

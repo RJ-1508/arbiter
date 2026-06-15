@@ -9,18 +9,17 @@ export default function PlayerInput() {
 
   const handleSubmit = () => {
     if (!text.trim() || !gameId) return;
-    startTurn();
+    startTurn(text);
     socket.emit("player:input", { gameId, input: text });
     setText("");
   };
   return (
-    <div>
+    <div className="prompt">
       <input
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
       />
-      <button onClick={handleSubmit}>Send</button>
     </div>
   );
 }

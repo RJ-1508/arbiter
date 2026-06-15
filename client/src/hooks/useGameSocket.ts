@@ -14,11 +14,13 @@ export function useGameSocket() {
     function onState({
       player,
       items,
+      location,
     }: {
       player: Player;
       items: InventoryItem[];
+      location?: { name: string };
     }) {
-      setTurnState({ player, items });
+      setTurnState({ player, items, location });
     }
 
     function onDone() {

@@ -35,7 +35,7 @@ export async function persist(
 
     // NPC dialogue line — OPTIONAL, decide first (see note)
     if (changes.npcId && changes.dialogueAppend) {
-      const npc = loadedState.npcs.find((n) => n.id === changes.npcId);
+      const npc = loadedState.npcs.find((n: any) => n.id === changes.npcId);
       const history = (
         Array.isArray(npc?.dialogueHistory) ? npc!.dialogueHistory : []
       ) as unknown[];
